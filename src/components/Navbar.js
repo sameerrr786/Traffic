@@ -7,7 +7,8 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { currentUser, logout } = useAuth();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -21,9 +22,15 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [scrolled]);
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
+  const handleLogout = async () => {
+    try {
+      const result = await logout();
+      if (result.success) {
+        navigate('/login');
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
 
   const navItems = [
@@ -67,7 +74,7 @@ const Navbar = () => {
           <div className="flex items-center space-x-4">
             <div className="text-sm text-gray-300">
               <span className="hidden sm:inline">Welcome, </span>
-              <span className="font-medium text-neon-blue">{user?.name || 'User'}</span>
+              <span className="font-medium text-neon-blue">{currentUser?.email?.split('@')[0] || 'User'}</span>
             </div>
             <button
               onClick={handleLogout}
@@ -76,6 +83,30 @@ const Navbar = () => {
               Logout
             </button>
           </div>
+        </div>
+      </div>
+
+      <div className={`${isMenuOpen ? 'block' : 'hidden'} md:hidden`}>
+        <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+          {navItems.map((item) => (
+            <Link
+              key={item.name}
+              to={item.path}
+              className="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-dark-accent"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              {item.name}
+            </Link>
+          ))}
+          <button
+            onClick={() => {
+              setIsMenuOpen(false);
+              handleLogout();
+            }}
+            className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-white bg-dark-accent hover:bg-dark-accent/80"
+          >
+            Logout
+          </button>
         </div>
       </div>
     </motion.nav>

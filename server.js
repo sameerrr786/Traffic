@@ -10,10 +10,9 @@ const port = process.env.PORT || 3005;
 
 // Enable CORS with more options
 app.use(cors({
-  origin: 'https://traffic-kappa-seven.vercel.app',
-  methods: ['GET', 'POST', 'OPTIONS'],
-  credentials: true,
-  allowedHeaders: ['Content-Type', 'Authorization']
+  origin: 'http://localhost:3000', // Allow frontend origin
+  methods: ['GET', 'POST'],
+  credentials: true
 }));
 
 // Set up body parser for JSON with increased limit

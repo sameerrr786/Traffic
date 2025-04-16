@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -11,10 +11,25 @@ const Login = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   
-  const { login } = useAuth();
+  const { login, signup, isAuthenticated, currentUser, error: authError } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  // If already authenticated, redirect to home
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/');
+    }
+  }, [isAuthenticated, navigate]);
+
+  // Update component error state if auth context has an error
+  useEffect(() => {
+    if (authError) {
+      setError(authError);
+      setLoading(false);
+    }
+  }, [authError]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
@@ -25,14 +40,40 @@ const Login = () => {
       setLoading(false);
       return;
     }
-    
-    // Simulate login/signup process
-    setTimeout(() => {
-      // In a real app, you would validate credentials with a backend
-      login({ email, name: name || email.split('@')[0] });
+
+    if (!isLogin && !name) {
+      setError('Please enter your name');
       setLoading(false);
-      navigate('/'); // Redirect to home page
-    }, 1000);
+      return;
+    }
+    
+    try {
+      let result;
+      
+      if (isLogin) {
+        // Attempt to login
+        result = await login(email, password);
+      } else {
+        // Attempt to sign up
+        result = await signup(email, password, name);
+      }
+      
+      if (result.success) {
+        // Reset form and navigate to home on success
+        setEmail('');
+        setPassword('');
+        setName('');
+        navigate('/');
+      } else {
+        // Set error message from the result
+        setError(result.error || 'Authentication failed');
+      }
+    } catch (err) {
+      setError(err.message || 'An unexpected error occurred');
+      console.error('Authentication error:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -115,12 +156,17 @@ const Login = () => {
               id="password"
               name="password"
               type="password"
-              autoComplete="current-password"
+              autoComplete={isLogin ? "current-password" : "new-password"}
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="mt-1 block w-full px-3 py-2 bg-dark-200 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-dark-accent focus:border-dark-accent text-gray-100"
             />
+            {!isLogin && (
+              <p className="mt-1 text-xs text-gray-400">
+                Password must be at least 6 characters
+              </p>
+            )}
           </div>
 
           <div>
@@ -146,7 +192,10 @@ const Login = () => {
 
         <div className="text-center">
           <button
-            onClick={() => setIsLogin(!isLogin)}
+            onClick={() => {
+              setIsLogin(!isLogin);
+              setError('');
+            }}
             className="text-sm text-neon-blue hover:text-neon-purple transition-colors duration-300"
           >
             {isLogin

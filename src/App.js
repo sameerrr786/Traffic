@@ -7,6 +7,7 @@ import About from './pages/About';
 import SignRecognition from './pages/SignRecognition';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import FirebaseStatus from './components/FirebaseStatus';
 
 function AppContent() {
   const { isAuthenticated } = useAuth();
@@ -34,6 +35,7 @@ function AppContent() {
           <Route path="*" element={<Navigate to={isAuthenticated ? "/" : "/login"} replace />} />
         </Routes>
       </div>
+      <FirebaseStatus />
     </div>
   );
 }

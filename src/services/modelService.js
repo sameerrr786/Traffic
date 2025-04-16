@@ -2,19 +2,21 @@
 let modelLoaded = false;
 let classNames = null;
 
-// API base URL - Change this to your deployed backend URL
-const API_URL = 'https://traffic-npsd.onrender.com';
-
 /**
  * Load class names from classes.json
  * @returns {Promise<Array<string>>} Array of class names
  */
 const loadClassNames = async () => {
   try {
-    // Skip trying to load from remote sources - just use the hardcoded list
-    console.log('Using built-in class names list');
-    
-    // Default hardcoded class names
+    const response = await fetch('/models/classes.json');
+    if (!response.ok) {
+      throw new Error(`Failed to load classes: ${response.status} ${response.statusText}`);
+    }
+    const data = await response.json();
+    return data.classes || [];
+  } catch (error) {
+    console.error('Error loading class names:', error);
+    // Return the default class names if the file isn't available
     return [
       'Speed limit (20km/h)',
       'Speed limit (30km/h)',
@@ -60,9 +62,6 @@ const loadClassNames = async () => {
       'End of no passing',
       'End of no passing by vehicles over 3.5 tons'
     ];
-  } catch (error) {
-    console.error('Error loading class names:', error);
-    return [];
   }
 };
 
@@ -225,7 +224,7 @@ export const recognizeTrafficSignAPI = async (imageFile) => {
     
     // First check if the API is running
     try {
-      const statusResponse = await fetch(`${API_URL}/api/status`);
+      const statusResponse = await fetch('/api/status');
       if (!statusResponse.ok) {
         throw new Error(`API server is not running properly. Status: ${statusResponse.status}`);
       }
@@ -235,7 +234,7 @@ export const recognizeTrafficSignAPI = async (imageFile) => {
     }
     
     // Send the image to the API
-    const response = await fetch(`${API_URL}/api/recognize-sign`, {
+    const response = await fetch('/api/recognize-sign', {
       method: 'POST',
       body: formData,
     });
