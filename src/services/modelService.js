@@ -11,27 +11,10 @@ const API_URL = 'https://traffic-npsd.onrender.com';
  */
 const loadClassNames = async () => {
   try {
-    // Try to load from the deployed backend first
-    try {
-      const response = await fetch(`${API_URL}/models/classes.json`);
-      if (response.ok) {
-        const data = await response.json();
-        return data.classes || [];
-      }
-    } catch (e) {
-      console.warn('Could not load classes from deployed backend, trying local path');
-    }
-
-    // Fallback to local path
-    const response = await fetch('/models/classes.json');
-    if (!response.ok) {
-      throw new Error(`Failed to load classes: ${response.status} ${response.statusText}`);
-    }
-    const data = await response.json();
-    return data.classes || [];
-  } catch (error) {
-    console.error('Error loading class names:', error);
-    // Return the default class names if the file isn't available
+    // Skip trying to load from remote sources - just use the hardcoded list
+    console.log('Using built-in class names list');
+    
+    // Default hardcoded class names
     return [
       'Speed limit (20km/h)',
       'Speed limit (30km/h)',
@@ -77,6 +60,9 @@ const loadClassNames = async () => {
       'End of no passing',
       'End of no passing by vehicles over 3.5 tons'
     ];
+  } catch (error) {
+    console.error('Error loading class names:', error);
+    return [];
   }
 };
 

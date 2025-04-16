@@ -10,7 +10,7 @@ const port = process.env.PORT || 3005;
 
 // Enable CORS with more options
 app.use(cors({
-  origin: '*', // Allow all origins for testing - change to specific domains in production
+  origin: 'https://traffic-kappa-seven.vercel.app',
   methods: ['GET', 'POST', 'OPTIONS'],
   credentials: true,
   allowedHeaders: ['Content-Type', 'Authorization']
