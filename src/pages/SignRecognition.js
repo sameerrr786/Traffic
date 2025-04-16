@@ -14,6 +14,11 @@ const SignRecognition = () => {
   const [dragActive, setDragActive] = useState(false);
   const inputRef = useRef(null);
 
+  // Shadow styles for consistent animation
+  const shadowBase = "0px 0px 8px rgba(0, 245, 255, 0.3)";
+  const shadowHover = "0px 0px 20px rgba(0, 245, 255, 0.7)";
+  const neonGlow = "0 0 5px #00f5ff, 0 0 10px #00f5ff";
+
   // Load the model when component mounts
   useEffect(() => {
     async function initializeModel() {
@@ -108,18 +113,36 @@ const SignRecognition = () => {
   };
 
   return (
-    <div className="pt-16 min-h-screen bg-dark-200 hex-bg">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="pt-16 min-h-screen bg-black">
+      <div className="absolute inset-0 opacity-5">
+        <div style={{
+          backgroundSize: "30px 30px",
+          backgroundImage: `linear-gradient(to right, #00f5ff 1px, transparent 1px),
+                          linear-gradient(to bottom, #00f5ff 1px, transparent 1px)`,
+          height: "100%",
+          zIndex: 0
+        }}></div>
+      </div>
+      
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           className="text-center mb-12"
         >
-          <h1 className="text-5xl font-bold mb-4 curved-text">
+          <h1 
+            className="text-5xl font-bold mb-4"
+            style={{
+              background: "linear-gradient(to right, #00f5ff, #4e66f5)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              filter: "drop-shadow(0 0 8px rgba(0, 245, 255, 0.5))"
+            }}
+          >
             Traffic Sign Recognition
           </h1>
-          <p className="text-xl text-neutral-light font-secondary">
+          <p className="text-xl font-secondary" style={{ color: "#e0e0e0" }}>
             Upload a photo of a traffic sign and our AI will identify it instantly
           </p>
           
@@ -127,18 +150,23 @@ const SignRecognition = () => {
             <motion.div 
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mt-4 p-3 bg-danger bg-opacity-10 text-danger rounded-lg border border-danger border-opacity-20"
+              className="mt-4 p-3 rounded-lg" 
+              style={{ 
+                backgroundColor: "rgba(255,30,30,0.1)",
+                border: "1px solid rgba(255,30,30,0.3)",
+                color: "#ff5555"
+              }}
             >
               {modelError}
             </motion.div>
           )}
           
           {!modelError && !modelLoaded && (
-            <div className="mt-4 flex items-center justify-center space-x-2 text-neutral-light">
+            <div className="mt-4 flex items-center justify-center space-x-2" style={{ color: "#00f5ff" }}>
               <div className="flex space-x-2">
-                <span className="loader-dot"></span>
-                <span className="loader-dot"></span>
-                <span className="loader-dot"></span>
+                <span className="loader-dot" style={{ backgroundColor: "#00f5ff" }}></span>
+                <span className="loader-dot" style={{ backgroundColor: "#00f5ff" }}></span>
+                <span className="loader-dot" style={{ backgroundColor: "#00f5ff" }}></span>
               </div>
               <span>Initializing model...</span>
             </div>
@@ -148,7 +176,12 @@ const SignRecognition = () => {
             <motion.div 
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mt-4 p-3 bg-warning bg-opacity-10 text-warning rounded-lg border border-warning border-opacity-20"
+              className="mt-4 p-3 rounded-lg"
+              style={{ 
+                backgroundColor: "rgba(255, 181, 46, 0.1)",
+                border: "1px solid rgba(255, 181, 46, 0.3)",
+                color: "#ffb52e"
+              }}
             >
               <div className="flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
@@ -161,49 +194,78 @@ const SignRecognition = () => {
           )}
         </motion.div>
 
-        <div className="glassy-card rounded-2xl p-8">
+        <div className="rounded-2xl p-8 backdrop-blur-sm" style={{ 
+          backgroundColor: "rgba(0,0,0,0.7)", 
+          border: "1px solid #00f5ff",
+          boxShadow: shadowBase
+        }}>
           <div className="space-y-8">
             {/* Upload Section */}
             <div 
-              className={`file-upload-wrapper ${dragActive ? 'border-orange-primary bg-orange-primary bg-opacity-5' : ''} ${!modelLoaded ? 'opacity-70 pointer-events-none' : ''}`}
+              className={`relative flex flex-col items-center border-2 rounded-xl p-8 transition-all duration-300 ${!modelLoaded ? 'opacity-70 pointer-events-none' : ''}`}
+              style={{ 
+                borderColor: dragActive ? '#00f5ff' : 'rgba(0, 245, 255, 0.3)',
+                borderStyle: 'dashed',
+                backgroundColor: dragActive ? 'rgba(0, 245, 255, 0.05)' : 'transparent'
+              }}
               onDrop={handleDrop}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
             >
+              <input
+                type="file"
+                ref={inputRef}
+                onChange={handleImageUpload}
+                accept="image/*"
+                className="hidden"
+              />
+
               {selectedImage ? (
                 <div className="space-y-6 w-full">
                   <motion.div 
-                    className="relative rounded-xl overflow-hidden shadow-glass max-w-sm mx-auto card-3d"
+                    className="relative rounded-xl overflow-hidden max-w-sm mx-auto"
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     whileHover={{ scale: 1.02 }}
+                    style={{ boxShadow: shadowBase }}
                   >
                     <motion.img
                       src={selectedImage}
                       alt="Selected traffic sign"
                       className="max-h-64 w-full object-contain"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-dark-primary from-10% to-transparent opacity-60"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black from-10% to-transparent opacity-60"></div>
                   </motion.div>
                   
                   <div className="flex justify-center space-x-4">
                     <button
                       onClick={() => setSelectedImage(null)}
-                      className="btn-secondary"
+                      className="px-4 py-2 rounded-lg transition-all duration-300"
+                      style={{ 
+                        backgroundColor: "black",
+                        border: "1px solid #00f5ff",
+                        color: "#00f5ff",
+                        textShadow: neonGlow
+                      }}
                     >
                       Change Image
                     </button>
                     <button
                       onClick={handleAnalyze}
                       disabled={isAnalyzing || !modelLoaded}
-                      className="btn-primary shadow-button"
+                      className="px-4 py-2 rounded-lg transition-all duration-300"
+                      style={{ 
+                        background: "linear-gradient(to right, #00f5ff, #4e66f5)",
+                        boxShadow: shadowBase, 
+                        color: "white"
+                      }}
                     >
                       {isAnalyzing ? (
                         <span className="flex items-center">
                           <div className="flex space-x-1 mr-2">
-                            <span className="loader-dot w-2 h-2"></span>
-                            <span className="loader-dot w-2 h-2"></span>
-                            <span className="loader-dot w-2 h-2"></span>
+                            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: "white", animation: "bounce 1.4s ease-in-out 0s infinite" }}></span>
+                            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: "white", animation: "bounce 1.4s ease-in-out 0.2s infinite" }}></span>
+                            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: "white", animation: "bounce 1.4s ease-in-out 0.4s infinite" }}></span>
                           </div>
                           Analyzing...
                         </span>
@@ -216,9 +278,13 @@ const SignRecognition = () => {
               ) : (
                 <div className="space-y-4">
                   <div className="relative">
-                    <div className="icon-box mx-auto animate-float neon-glow">
+                    <div className="w-16 h-16 flex items-center justify-center mx-auto rounded-full" style={{ 
+                      background: "linear-gradient(to right, #00f5ff, #4e66f5)",
+                      boxShadow: "0 0 15px rgba(0, 245, 255, 0.5)",
+                      animation: "float 6s ease-in-out infinite"
+                    }}>
                       <svg
-                        className="w-6 h-6 text-white"
+                        className="w-8 h-8 text-white"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -231,12 +297,17 @@ const SignRecognition = () => {
                         />
                       </svg>
                     </div>
-                    <div className="absolute -bottom-3 -right-3 w-16 h-16 rounded-full bg-blue-primary bg-opacity-5 pulse-ring"></div>
+                    <div className="absolute -bottom-3 -right-3 w-16 h-16 rounded-full" style={{ 
+                      background: "rgba(0, 245, 255, 0.1)",
+                      animation: "pulse-ring 3s cubic-bezier(0.215, 0.61, 0.355, 1) infinite"
+                    }}></div>
                   </div>
                   
                   <div className="space-y-2">
-                    <h3 className="text-xl font-semibold text-neutral-light">Upload Traffic Sign Image</h3>
-                    <p className="text-sm text-neutral-light opacity-80">
+                    <h3 className="text-xl font-semibold" style={{ color: "#00f5ff", textShadow: neonGlow }}>
+                      Upload Traffic Sign Image
+                    </h3>
+                    <p className="text-sm" style={{ color: "#e0e0e0" }}>
                       Supports JPG, PNG formats
                     </p>
                   </div>
@@ -244,27 +315,19 @@ const SignRecognition = () => {
                   <div>
                     <button
                       onClick={onButtonClick}
-                      className="btn-primary shadow-button"
+                      className="px-6 py-3 rounded-lg transition-all duration-300"
+                      style={{ 
+                        background: "linear-gradient(to right, #00f5ff, #4e66f5)",
+                        boxShadow: shadowBase, 
+                        color: "white"
+                      }}
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 inline" viewBox="0 0 20 20" fill="currentColor">
                         <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clipRule="evenodd" />
                       </svg>
-                      Browse Files
+                      Upload Image
                     </button>
-                    <input
-                      ref={inputRef}
-                      id="file-upload"
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      className="hidden"
-                      disabled={!modelLoaded}
-                    />
                   </div>
-                  
-                  <p className="text-sm text-neutral-light opacity-60">
-                    or drag and drop your image here
-                  </p>
                 </div>
               )}
             </div>
@@ -273,83 +336,55 @@ const SignRecognition = () => {
             <AnimatePresence>
               {result && (
                 <motion.div
-                  key="result"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.5 }}
-                  className="glassy-card rounded-xl p-6 shadow-glass"
+                  className="rounded-xl p-6" 
+                  style={{ 
+                    backgroundColor: "rgba(0,0,0,0.5)", 
+                    border: "1px solid #00f5ff",
+                    boxShadow: shadowBase
+                  }}
                 >
-                  <h2 className="text-2xl font-bold mb-4 curved-text">
-                    Analysis Results
-                  </h2>
+                  <h3 className="text-2xl font-bold mb-4" style={{ color: "#00f5ff", textShadow: neonGlow }}>
+                    Result:
+                  </h3>
                   
-                  {result.isPlaceholder && (
-                    <div className="mb-6 p-3 bg-warning bg-opacity-10 text-warning rounded-lg border border-warning border-opacity-20 text-sm">
-                      <div className="flex items-start">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                        </svg>
-                        <span>These results are generated by a placeholder model for demonstration purposes.</span>
+                  <div className="flex flex-col md:flex-row md:items-center gap-6">
+                    <div className="md:w-1/3 flex justify-center">
+                      <div className="w-32 h-32 rounded-full flex items-center justify-center" style={{ 
+                        background: "linear-gradient(135deg, rgba(0, 245, 255, 0.1), rgba(78, 102, 245, 0.1))",
+                        border: "2px solid #00f5ff",
+                        boxShadow: "0 0 15px rgba(0, 245, 255, 0.3)"
+                      }}>
+                        <span className="text-4xl" style={{ color: "#00f5ff", textShadow: neonGlow }}>
+                          {result.signType === "Error" ? "⚠️" : "🔍"}
+                        </span>
                       </div>
-                    </div>
-                  )}
-                  
-                  <div className="space-y-6">
-                    <div className="bg-dark-300 rounded-xl p-5 shadow-glass border border-dark-border">
-                      <div className="flex items-center mb-2">
-                        <div className="w-8 h-8 rounded-full bg-gradient-primary flex items-center justify-center mr-3">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-white" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                          </svg>
-                        </div>
-                        <h3 className="text-lg font-semibold text-neutral-light">
-                          Sign Identified
-                        </h3>
-                      </div>
-                      <p className="text-2xl font-bold text-neutral-light ml-11">{result.signType}</p>
                     </div>
                     
-                    <div className="bg-dark-300 rounded-xl p-5 shadow-glass border border-dark-border">
-                      <div className="flex items-center mb-4">
-                        <div className="w-8 h-8 rounded-full bg-gradient-secondary flex items-center justify-center mr-3">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-white" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                          </svg>
-                        </div>
-                        <h3 className="text-lg font-semibold text-neutral-light">
-                          Confidence Level
-                        </h3>
-                      </div>
+                    <div className="md:w-2/3">
+                      <h4 className="text-xl font-bold mb-2" style={{ color: "#00f5ff", textShadow: neonGlow }}>
+                        {result.signType}
+                      </h4>
                       
-                      <div className="ml-11">
-                        <div className="progress-bar mb-2">
-                          <motion.div 
-                            className="progress-fill"
-                            initial={{ width: 0 }}
-                            animate={{ width: result.confidence }}
-                            transition={{ duration: 1, ease: "easeOut" }}
-                          ></motion.div>
+                      {result.confidence && result.signType !== "Error" && (
+                        <div className="mb-3">
+                          <div className="text-sm mb-1" style={{ color: "#e0e0e0" }}>Confidence: {result.confidence}</div>
+                          <div className="h-2 w-full rounded-full" style={{ backgroundColor: "rgba(0, 245, 255, 0.1)" }}>
+                            <div
+                              className="h-full rounded-full"
+                              style={{
+                                width: result.confidence,
+                                background: "linear-gradient(to right, #00f5ff, #4e66f5)",
+                                boxShadow: "0 0 10px rgba(0, 245, 255, 0.5)"
+                              }}
+                            ></div>
+                          </div>
                         </div>
-                        <div className="flex justify-between">
-                          <p className="text-sm text-blue-primary font-bold">{result.confidence}</p>
-                          <p className="text-xs text-neutral-light opacity-60">Based on 43 sign classes</p>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="bg-dark-300 rounded-xl p-5 shadow-glass border border-dark-border">
-                      <div className="flex items-center mb-2">
-                        <div className="w-8 h-8 rounded-full bg-gradient-primary flex items-center justify-center mr-3">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-white" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                          </svg>
-                        </div>
-                        <h3 className="text-lg font-semibold text-neutral-light">
-                          Description
-                        </h3>
-                      </div>
-                      <p className="text-neutral-light ml-11">{result.description}</p>
+                      )}
+                      
+                      <p style={{ color: "#e0e0e0" }}>{result.description}</p>
                     </div>
                   </div>
                 </motion.div>

@@ -50,8 +50,17 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
-            <Link to="/" className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-neon-purple to-neon-blue animate-glow">
-              TrafficSignAI
+            <Link to="/" className="logo-link flex items-center">
+              <span 
+                className="text-2xl font-bold"
+                style={{
+                  color: "#00f5ff",
+                  textShadow: "0 0 5px #00f5ff, 0 0 10px #00f5ff, 0 0 15px #00f5ff, 0 0 20px #00f5ff",
+                  letterSpacing: "0.5px"
+                }}
+              >
+                TrafficSignAI
+              </span>
             </Link>
           </div>
           <div className="hidden md:block">

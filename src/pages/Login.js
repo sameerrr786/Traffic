@@ -77,19 +77,39 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen pt-16 flex items-center justify-center bg-dark-200">
-      <div className="absolute inset-0 bg-cyber-grid bg-grid-lg opacity-10"></div>
+    <div className="min-h-screen pt-16 flex items-center justify-center bg-black">
+      <div className="absolute inset-0 opacity-5">
+        <div style={{
+          backgroundSize: "30px 30px",
+          backgroundImage: `linear-gradient(to right, #00f5ff 1px, transparent 1px),
+                          linear-gradient(to bottom, #00f5ff 1px, transparent 1px)`,
+          height: "100%"
+        }}></div>
+      </div>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-md p-8 space-y-8 bg-dark-100 rounded-xl border border-gray-700 shadow-lg shadow-dark-accent/20 backdrop-blur-sm z-10"
+        className="w-full max-w-md p-8 space-y-8 backdrop-blur-sm z-10 rounded-xl"
+        style={{ 
+          backgroundColor: "rgba(0,0,0,0.7)", 
+          border: "1px solid #00f5ff",
+          boxShadow: "0px 0px 20px rgba(0, 245, 255, 0.3)"
+        }}
       >
         <div className="text-center">
-          <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-neon-blue to-neon-purple">
+          <h2 
+            className="text-3xl font-bold"
+            style={{
+              background: "linear-gradient(to right, #00f5ff, #4e66f5)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              filter: "drop-shadow(0 0 5px rgba(0, 245, 255, 0.5))"
+            }}
+          >
             {isLogin ? 'Welcome Back' : 'Create Account'}
           </h2>
-          <p className="mt-2 text-gray-400">
+          <p style={{ color: "#e0e0e0" }} className="mt-2">
             {isLogin
               ? 'Sign in to your account'
               : 'Join us to start recognizing traffic signs'}
@@ -97,7 +117,7 @@ const Login = () => {
         </div>
 
         {error && (
-          <div className="bg-red-900/20 text-red-200 p-3 rounded-md border border-red-800">
+          <div className="p-3 rounded-md" style={{ backgroundColor: "rgba(255,30,30,0.1)", border: "1px solid rgba(255,30,30,0.3)", color: "#ff5555" }}>
             {error}
           </div>
         )}
@@ -111,7 +131,8 @@ const Login = () => {
             >
               <label
                 htmlFor="name"
-                className="block text-sm font-medium text-gray-300"
+                className="block text-sm font-medium"
+                style={{ color: "#00f5ff" }}
               >
                 Full Name
               </label>
@@ -121,7 +142,12 @@ const Login = () => {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 bg-dark-200 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-dark-accent focus:border-dark-accent text-gray-100"
+                className="mt-1 block w-full px-3 py-2 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                style={{ 
+                  backgroundColor: "rgba(0,0,0,0.6)", 
+                  border: "1px solid rgba(0, 245, 255, 0.3)",
+                  color: "white" 
+                }}
               />
             </motion.div>
           )}
@@ -129,7 +155,8 @@ const Login = () => {
           <div>
             <label
               htmlFor="email"
-              className="block text-sm font-medium text-gray-300"
+              className="block text-sm font-medium"
+              style={{ color: "#00f5ff" }}
             >
               Email address
             </label>
@@ -141,14 +168,20 @@ const Login = () => {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 bg-dark-200 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-dark-accent focus:border-dark-accent text-gray-100"
+              className="mt-1 block w-full px-3 py-2 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              style={{ 
+                backgroundColor: "rgba(0,0,0,0.6)", 
+                border: "1px solid rgba(0, 245, 255, 0.3)",
+                color: "white" 
+              }}
             />
           </div>
 
           <div>
             <label
               htmlFor="password"
-              className="block text-sm font-medium text-gray-300"
+              className="block text-sm font-medium"
+              style={{ color: "#00f5ff" }}
             >
               Password
             </label>
@@ -160,10 +193,15 @@ const Login = () => {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 bg-dark-200 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-dark-accent focus:border-dark-accent text-gray-100"
+              className="mt-1 block w-full px-3 py-2 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              style={{ 
+                backgroundColor: "rgba(0,0,0,0.6)", 
+                border: "1px solid rgba(0, 245, 255, 0.3)",
+                color: "white" 
+              }}
             />
             {!isLogin && (
-              <p className="mt-1 text-xs text-gray-400">
+              <p className="mt-1 text-xs" style={{ color: "#a0a0a0" }}>
                 Password must be at least 6 characters
               </p>
             )}
@@ -173,9 +211,13 @@ const Login = () => {
             <motion.button
               type="submit"
               disabled={loading}
-              whileHover={{ scale: loading ? 1 : 1.03 }}
+              whileHover={{ scale: loading ? 1 : 1.03, boxShadow: "0px 0px 15px rgba(0, 245, 255, 0.5)" }}
               whileTap={{ scale: loading ? 1 : 0.97 }}
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-dark-accent to-purple-700 hover:from-purple-700 hover:to-dark-accent transition-all duration-300 shadow-lg shadow-dark-accent/20 hover:shadow-xl hover:shadow-dark-accent/30 disabled:opacity-50"
+              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white transition-all duration-300 disabled:opacity-50"
+              style={{ 
+                background: "linear-gradient(to right, #00f5ff, #4e66f5)",
+                boxShadow: "0px 0px 10px rgba(0, 245, 255, 0.3)" 
+              }}
             >
               {loading ? (
                 <span className="flex items-center">
@@ -196,7 +238,8 @@ const Login = () => {
               setIsLogin(!isLogin);
               setError('');
             }}
-            className="text-sm text-neon-blue hover:text-neon-purple transition-colors duration-300"
+            style={{ color: "#00f5ff", textShadow: "0 0 5px rgba(0, 245, 255, 0.3)" }}
+            className="text-sm hover:brightness-110 transition-all duration-300"
           >
             {isLogin
               ? "Don't have an account? Sign up"
