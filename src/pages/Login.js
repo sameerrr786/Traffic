@@ -14,6 +14,13 @@ const Login = () => {
   const { login, signup, isAuthenticated, currentUser, error: authError } = useAuth();
   const navigate = useNavigate();
 
+  // Shadow styles - consistent format to avoid animation errors
+  const shadowStyle = "0 0 10px rgba(0, 245, 255, 0.3)";
+  const buttonHoverStyle = {
+    scale: loading ? 1 : 1.03,
+    // No shadow animation here to prevent format mix errors
+  };
+
   // If already authenticated, redirect to home
   useEffect(() => {
     if (isAuthenticated) {
@@ -77,7 +84,7 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen pt-16 flex items-center justify-center bg-black">
+    <div className="min-h-screen pt-16 flex flex-col items-center justify-center bg-black">
       <div className="absolute inset-0 opacity-5">
         <div style={{
           backgroundSize: "30px 30px",
@@ -86,15 +93,44 @@ const Login = () => {
           height: "100%"
         }}></div>
       </div>
+      
+      {/* App title with animation - Integrated without a box */}
+      <motion.div 
+        className="mb-8"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
+        <motion.h1 
+          className="text-5xl font-extrabold"
+          style={{
+            background: "linear-gradient(to right, #00f5ff, #4e66f5)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            textShadow: "none",
+            filter: "drop-shadow(0 0 8px rgba(0, 245, 255, 0.5))"
+          }}
+        >
+          Traffic Sign Predictor
+        </motion.h1>
+        <motion.div 
+          className="h-1 w-24 mx-auto mt-2" 
+          style={{ background: "linear-gradient(to right, #00f5ff, #4e66f5)" }}
+          initial={{ width: 0, opacity: 0 }}
+          animate={{ width: "6rem", opacity: 1 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+        ></motion.div>
+      </motion.div>
+      
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
         className="w-full max-w-md p-8 space-y-8 backdrop-blur-sm z-10 rounded-xl"
         style={{ 
           backgroundColor: "rgba(0,0,0,0.7)", 
           border: "1px solid #00f5ff",
-          boxShadow: "0px 0px 20px rgba(0, 245, 255, 0.3)"
+          boxShadow: shadowStyle
         }}
       >
         <div className="text-center">
@@ -211,12 +247,12 @@ const Login = () => {
             <motion.button
               type="submit"
               disabled={loading}
-              whileHover={{ scale: loading ? 1 : 1.03, boxShadow: "0px 0px 15px rgba(0, 245, 255, 0.5)" }}
+              whileHover={buttonHoverStyle}
               whileTap={{ scale: loading ? 1 : 0.97 }}
               className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white transition-all duration-300 disabled:opacity-50"
               style={{ 
                 background: "linear-gradient(to right, #00f5ff, #4e66f5)",
-                boxShadow: "0px 0px 10px rgba(0, 245, 255, 0.3)" 
+                boxShadow: shadowStyle
               }}
             >
               {loading ? (
