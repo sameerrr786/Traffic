@@ -10,9 +10,10 @@ const port = process.env.PORT || 3005;
 
 // Enable CORS with more options
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000', // Allow deployed frontend
-  methods: ['GET', 'POST'],
-  credentials: true
+  origin: '*', // Allow all origins for testing - change to specific domains in production
+  methods: ['GET', 'POST', 'OPTIONS'],
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 // Set up body parser for JSON with increased limit
