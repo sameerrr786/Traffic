@@ -1,9 +1,5 @@
-import * as tf from '@tensorflow/tfjs';
-
-// Global model variable
-let model = null;
-let isModelLoading = false;
-let modelLoadingError = null;
+// Global variables
+let modelLoaded = false;
 let classNames = null;
 
 /**
@@ -71,65 +67,18 @@ const loadClassNames = async () => {
 
 /**
  * Load the traffic sign recognition model
- * @returns {Promise<boolean>} - True if model loaded successfully, false otherwise
+ * @returns {Promise<boolean>} - True if model initialized successfully, false otherwise
  */
 export const loadModel = async () => {
-  // If already loading, wait for that to complete
-  if (isModelLoading) {
-    return !modelLoadingError;
-  }
-  
-  // If already loaded successfully, return true
-  if (model) {
-    return true;
-  }
-  
-  isModelLoading = true;
-  modelLoadingError = null;
-  
   try {
-    // Load the class names first
+    // For Gemini API integration, we just need to load class names
     classNames = await loadClassNames();
-    
-    // Now load the model
-    model = await tf.loadLayersModel('/models/model.json');
-    console.log('Traffic sign recognition model loaded successfully');
+    console.log('Traffic sign recognition service initialized');
+    modelLoaded = true;
     return true;
   } catch (error) {
-    console.error('Failed to load traffic sign model:', error);
-    modelLoadingError = error;
-    
-    // Create a simple fallback model for demo purposes
-    try {
-      console.log('Creating a simple fallback model for demonstration');
-      model = tf.sequential();
-      
-      // Create a model that matches our Python structure but simplified
-      model.add(tf.layers.conv2d({
-        inputShape: [64, 64, 3],
-        kernelSize: 3,
-        filters: 32,
-        activation: 'relu'
-      }));
-      model.add(tf.layers.maxPooling2d({poolSize: 2}));
-      
-      model.add(tf.layers.flatten());
-      model.add(tf.layers.dense({units: 128, activation: 'relu'}));
-      model.add(tf.layers.dense({units: classNames.length, activation: 'softmax'}));
-      
-      model.compile({
-        optimizer: 'adam',
-        loss: 'categoricalCrossentropy',
-        metrics: ['accuracy']
-      });
-      console.log('Fallback model created successfully');
-      return true;
-    } catch (fallbackError) {
-      console.error('Failed to create fallback model:', fallbackError);
-      return false;
-    }
-  } finally {
-    isModelLoading = false;
+    console.error('Failed to initialize traffic sign service:', error);
+    return false;
   }
 };
 
@@ -139,49 +88,76 @@ export const loadModel = async () => {
  * @returns {string} - Description of the sign
  */
 const getSignDescription = (className) => {
-  // This is a simplified version - you should expand with proper descriptions
+  // Expanded set of descriptions for common traffic signs
   const descriptions = {
-    'Stop': 'A red octagonal sign with white border and the word "STOP"',
-    'Yield': 'A downward-pointing triangular sign with red border and white center',
-    'Speed limit (30km/h)': 'A circular sign with red border and "30" in the center',
-    'Priority road': 'A diamond-shaped sign with yellow center and white border',
-    'No passing': 'A circular sign with a red border showing two cars side by side',
-    'No entry': 'A circular sign with a horizontal white bar on a red background',
-    'General caution': 'A triangular sign with a red border and black exclamation mark',
-    'Pedestrians': 'A triangular sign with a pedestrian symbol',
-    'Children crossing': 'A triangular sign with children crossing symbol',
-    'Bicycles crossing': 'A triangular sign with a bicycle symbol',
-    'Road work': 'A triangular sign showing a person digging',
-    'Traffic signals': 'A triangular sign showing a traffic light',
-    'Dangerous curve to the left': 'A triangular sign showing a curve bending to the left',
-    'Dangerous curve to the right': 'A triangular sign showing a curve bending to the right',
-    'Double curve': 'A triangular sign showing an S-shaped curve',
-    'Bumpy road': 'A triangular sign showing a bumpy surface',
-    'Slippery road': 'A triangular sign showing a car skidding',
+    // Regulatory Signs
+    'Stop': 'A red octagonal sign requiring vehicles to come to a complete stop before proceeding.',
+    'Yield': 'A downward-pointing triangular sign with red border indicating drivers must give way to other traffic.',
+    'No entry': 'A circular sign with a horizontal white bar on a red background prohibiting entry.',
+    'No passing': 'A circular sign with a red border showing two cars side by side, prohibiting overtaking.',
+    'No parking': 'A circular sign with a diagonal red line through a P symbol, prohibiting parking.',
+    'No stopping': 'A circular sign with a red cross indicating no stopping allowed.',
+    'Do not enter': 'A red circle with a white horizontal bar indicating entry is prohibited.',
+    'Wrong way': 'A rectangular sign with white text on red background warning drivers they are going the wrong way.',
+    
+    // Speed Limit Signs
+    'Speed limit (20km/h)': 'A circular sign with red border and "20" in the center, setting maximum speed to 20 km/h.',
+    'Speed limit (30km/h)': 'A circular sign with red border and "30" in the center, setting maximum speed to 30 km/h.',
+    'Speed limit (50km/h)': 'A circular sign with red border and "50" in the center, setting maximum speed to 50 km/h.',
+    'Speed limit (60km/h)': 'A circular sign with red border and "60" in the center, setting maximum speed to 60 km/h.',
+    'Speed limit (70km/h)': 'A circular sign with red border and "70" in the center, setting maximum speed to 70 km/h.',
+    'Speed limit (80km/h)': 'A circular sign with red border and "80" in the center, setting maximum speed to 80 km/h.',
+    'Speed limit (100km/h)': 'A circular sign with red border and "100" in the center, setting maximum speed to 100 km/h.',
+    'Speed limit (120km/h)': 'A circular sign with red border and "120" in the center, setting maximum speed to 120 km/h.',
+    'End of speed limit': 'A circular sign showing the end of a previously indicated speed limit.',
+    
+    // Warning Signs
+    'General caution': 'A triangular sign with a red border and black exclamation mark warning of potential danger ahead.',
+    'Dangerous curve to the left': 'A triangular sign showing a curve bending to the left, warning drivers of a sharp left turn.',
+    'Dangerous curve to the right': 'A triangular sign showing a curve bending to the right, warning drivers of a sharp right turn.',
+    'Double curve': 'A triangular sign showing an S-shaped curve, warning of a series of bends ahead.',
+    'Bumpy road': 'A triangular sign showing a bumpy surface, warning of uneven road conditions ahead.',
+    'Slippery road': 'A triangular sign showing a car skidding, warning drivers the road may be slippery.',
+    'Road narrows': 'A triangular sign warning that the road ahead narrows.',
+    'Road work': 'A triangular sign showing a person digging, warning of construction or maintenance work ahead.',
+    'Traffic signals': 'A triangular sign showing a traffic light, warning of traffic signal ahead.',
+    'Pedestrians': 'A triangular sign with a pedestrian symbol, warning drivers to watch for pedestrians crossing.',
+    'Children crossing': 'A triangular sign with children crossing symbol, usually near schools or playgrounds.',
+    'Bicycle crossing': 'A triangular sign with a bicycle symbol, warning of a bicycle crossing ahead.',
+    'Animal crossing': 'A triangular sign with an animal silhouette, warning of possible animals crossing the road.',
+    'Intersection': 'A triangular sign warning of an upcoming intersection.',
+    
+    // Mandatory Signs
+    'Turn right ahead': 'A blue circular sign with a right arrow, instructing drivers to turn right at the next intersection.',
+    'Turn left ahead': 'A blue circular sign with a left arrow, instructing drivers to turn left at the next intersection.',
+    'Ahead only': 'A blue circular sign with an upward arrow, indicating drivers can only proceed straight ahead.',
+    'Go straight or right': 'A blue circular sign showing two directions, allowing drivers to go straight or turn right.',
+    'Go straight or left': 'A blue circular sign showing two directions, allowing drivers to go straight or turn left.',
+    'Keep right': 'A blue circular sign with a right arrow, instructing drivers to keep to the right of the sign.',
+    'Keep left': 'A blue circular sign with a left arrow, instructing drivers to keep to the left of the sign.',
+    'Roundabout': 'A blue circular sign with rotating arrows, indicating a roundabout ahead where traffic circulates counterclockwise.',
+    
+    // Informational Signs
+    'Priority road': 'A diamond-shaped sign with yellow center and white border indicating a road where you have priority.',
+    'End of priority road': 'A diamond-shaped sign with a black diagonal line, indicating the end of a priority road.',
+    'Information': 'A rectangular sign with an "i" symbol providing information to road users.',
+    'Hospital': 'A square blue sign with an "H" indicating a hospital is nearby.',
+    'Parking': 'A square blue sign with a "P" indicating a parking area.',
+    'One-way street': 'A rectangular sign with an arrow indicating the direction of traffic flow.',
+    
+    // Temporary Warning Signs
+    'Road closed': 'A square sign indicating that a road is temporarily closed to traffic.',
+    'Detour': 'A rectangular sign with an arrow directing traffic to a temporary route.',
+    'Construction zone': 'A rectangular sign warning of a construction area ahead.',
+    
+    // Unknown or Not Recognized
+    'Unknown': 'The traffic sign could not be identified with confidence.',
+    'Not a traffic sign': 'The image does not appear to contain a traffic sign.',
+    'Unknown traffic sign': 'The system could not identify this traffic sign with confidence. Please try with a clearer image or from a different angle.'
   };
   
   // Return the description or a default message
-  return descriptions[className] || `Traffic sign classified as ${className}`;
-};
-
-/**
- * Preprocess an image for the model
- * @param {HTMLImageElement} img - The image element to process
- * @returns {tf.Tensor} - Processed tensor ready for prediction
- */
-const preprocessImage = (img) => {
-  // Create a tensor from the image
-  const imageTensor = tf.browser.fromPixels(img);
-  
-  // Resize to the model's expected input dimensions (64x64)
-  // This matches the Python model's input dimensions
-  const resized = tf.image.resizeBilinear(imageTensor, [64, 64]);
-  
-  // Normalize values to [0, 1]
-  const normalized = resized.div(tf.scalar(255));
-  
-  // Add batch dimension and return
-  return normalized.expandDims(0);
+  return descriptions[className] || `Traffic sign interpreted as: ${className}`;
 };
 
 /**
@@ -190,7 +166,7 @@ const preprocessImage = (img) => {
  * @returns {Promise<Object>} - Recognition result with sign type, confidence, and description
  */
 export const recognizeTrafficSign = async (imgElement) => {
-  if (!model) {
+  if (!modelLoaded) {
     const loaded = await loadModel();
     if (!loaded) {
       throw new Error('Model not loaded and could not be loaded automatically.');
@@ -198,40 +174,44 @@ export const recognizeTrafficSign = async (imgElement) => {
   }
   
   try {
-    // Preprocess the image
-    const tensor = preprocessImage(imgElement);
+    // Create a canvas to get the image data
+    const canvas = document.createElement('canvas');
+    canvas.width = imgElement.naturalWidth || imgElement.width;
+    canvas.height = imgElement.naturalHeight || imgElement.height;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(imgElement, 0, 0);
     
-    // Get prediction from model
-    const predictions = await model.predict(tensor);
-    const probabilities = await predictions.data();
+    // Convert the canvas to a blob
+    const blob = await new Promise(resolve => {
+      canvas.toBlob(resolve, 'image/jpeg', 0.95);
+    });
     
-    // Cleanup tensors to prevent memory leaks
-    tensor.dispose();
-    predictions.dispose();
+    if (!blob) {
+      throw new Error('Failed to convert image to blob');
+    }
     
-    // Get the index of the highest probability
-    const highestProbIndex = probabilities.indexOf(Math.max(...probabilities));
+    // Create a file object from the blob
+    const imageFile = new File([blob], 'traffic_sign.jpg', { type: 'image/jpeg' });
     
-    // Get the class name and probability
-    const signType = classNames[highestProbIndex];
-    const confidence = `${(probabilities[highestProbIndex] * 100).toFixed(1)}%`;
+    try {
+      // Use the API implementation to send the image to the backend
+      return await recognizeTrafficSignAPI(imageFile);
+    } catch (apiError) {
+      console.error('API error:', apiError);
+      
+      // If we get an error from the API, we'll display a more helpful message
+      throw new Error(`Failed to process image: ${apiError.message}`);
+    }
     
-    // Return the result
-    return {
-      signType,
-      confidence,
-      description: getSignDescription(signType),
-      isPlaceholder: !!modelLoadingError
-    };
   } catch (error) {
     console.error('Error during traffic sign recognition:', error);
-    throw new Error('Failed to process image: ' + error.message);
+    throw error;
   }
 };
 
 /**
- * Alternative API-based implementation
- * Use this if you have a separate backend for your ML model
+ * API-based implementation
+ * Use this to connect to your Python backend that uses the Gemini Vision API
  * @param {File|Blob} imageFile - The image file to send to the API
  * @returns {Promise<Object>} - Recognition result
  */
@@ -240,16 +220,68 @@ export const recognizeTrafficSignAPI = async (imageFile) => {
     const formData = new FormData();
     formData.append('image', imageFile);
     
-    const response = await fetch('http://your-api-url/predict', {
+    console.log('Sending image to API...');
+    
+    // First check if the API is running
+    try {
+      const statusResponse = await fetch('/api/status');
+      if (!statusResponse.ok) {
+        throw new Error(`API server is not running properly. Status: ${statusResponse.status}`);
+      }
+    } catch (statusError) {
+      console.error('API status check failed:', statusError);
+      throw new Error('Cannot connect to API server. Make sure the backend is running.');
+    }
+    
+    // Send the image to the API
+    const response = await fetch('/api/recognize-sign', {
       method: 'POST',
       body: formData,
     });
     
     if (!response.ok) {
-      throw new Error(`API error: ${response.status} ${response.statusText}`);
+      const errorData = await response.json().catch(() => ({}));
+      const errorMessage = errorData.error || `API error: ${response.status} ${response.statusText}`;
+      console.error('API response error:', errorMessage);
+      
+      if (response.status === 500) {
+        throw new Error(`Server error processing the image. Details: ${errorData.details || 'Unknown error'}`);
+      }
+      
+      throw new Error(errorMessage);
     }
     
-    return await response.json();
+    const result = await response.json();
+    
+    // Handle the new API response format
+    // The new API returns { sign: "Sign Name" } or { sign: "Unknown", error: "Error message" }
+    const signType = result.sign || "Unknown";
+    
+    // Sanitize response to prevent inappropriate text
+    let cleanSignType = signType;
+    if (signType.toLowerCase().includes("unknown") || !signType || signType.length > 30) {
+      cleanSignType = "Unknown traffic sign";
+    }
+    
+    // For error cases
+    if (result.error) {
+      console.warn("Recognition warning:", result.error);
+    }
+    
+    // Set confidence level - lower for unknown signs
+    let confidence = "75%";
+    if (cleanSignType === "Unknown" || cleanSignType === "Unknown traffic sign" || cleanSignType === "Not a traffic sign") {
+      confidence = "25%";
+    }
+    
+    // Create a properly formatted response for the frontend
+    const formattedResult = {
+      signType: cleanSignType,
+      confidence: confidence,
+      description: getSignDescription(cleanSignType)
+    };
+    
+    return formattedResult;
   } catch (error) {
     console.error('API error:', error);
     throw error;
